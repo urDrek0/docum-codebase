@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.font-title {
+    font-family: "Gloock", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.font-content {
+    font-family: "Lexend Deca", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
