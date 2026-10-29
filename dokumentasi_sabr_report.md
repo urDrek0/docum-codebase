@@ -9,7 +9,7 @@ Aplikasi **SABR Report App** adalah aplikasi web manajemen laporan medis harian 
 * **Frontend:** Vanilla JavaScript (ES6+ Native DOM API), Tailwind CSS (CDN/CSS Utility), FullCalendar v7.
 * **Backend Endpoint:** RESTful API (Express.js / Node.js / Serverless Backend).
 * **Database Target:** PostgreSQL / Supabase / MongoDB (via REST backend).
-* **Hosting Frontend:** Vercel Static Web Hosting / GitHub Pages.
+* **Hosting Frontend & Backend:** Vercel (Static Web & Serverless Functions).
 
 ### Struktur Folder Projek
 
@@ -235,21 +235,21 @@ targetMonth.innerHTML = defaultOption + uniqueMonth.map(m =>
 
 ---
 
-## 🚀 6. Panduan Deploy Static Frontend ke Vercel
+## 🚀 6. Panduan Deploy ke Vercel (Frontend & Backend Express.js)
+
+### A. Deploy Frontend (Static Web)
 
 1. **Persiapan Repositori GitHub:**
    * Pastikan struktur folder rapi (`index.html` ada di *root* atau folder terkonfigurasi).
-   * Pastikan `API_URL` menunjuk ke server backend produksi.
+   * Pastikan `API_URL` menunjuk ke server backend produksi Vercel kamu.
 
-2. **Deploy via Vercel CLI atau Dashboard:**
+2. **Deploy via Vercel Dashboard:**
    * Login ke [Vercel Dashboard](https://vercel.com).
-   * Klik **"Add New"** ➔ **"Project"**.
-   * Import repositori GitHub projek ini.
+   * Klik **"Add New"** ➔ **"Project"** ➔ Import repositori frontend.
    * **Framework Preset:** Pilih `Other` / `Static HTML`.
-   * **Build & Output Settings:** Biarkan *default* (tidak perlu *command build* khusus jika menggunakan JS murni).
    * Klik **Deploy**.
 
-3. **Routing Configuration (`vercel.json` optional):**
+3. **Routing Configuration (`vercel.json` Frontend):**
    Jika memerlukan penanganan routing SPA agar halaman tidak 404 saat di-refresh:
    ```json
    {
@@ -258,6 +258,87 @@ targetMonth.innerHTML = defaultOption + uniqueMonth.map(m =>
      ]
    }
    ```
+
+---
+
+### B. Deploy Backend Express.js (Serverless Function)
+
+Di Vercel, *backend* Express.js tidak dijalankan memakai `app.listen(3000)` terus-menerus, melainkan di-wrap sebagai **Serverless Function**.
+
+#### 1. Struktur Folder Backend yang Diharuskan Vercel
+
+```text
+sabr-backend/
+├── api/
+│   └── index.js      <-- Entry point serverless Vercel (KODE EXPRESS ADA DI SINI)
+├── package.json
+└── vercel.json       <-- Konfigurasi route serverless
+```
+
+#### 2. Kode Express.js (`api/index.js`)
+
+Pastikan kamu meng-export `app` pakai `module.exports = app;`, bukan memanggil `app.listen()`.
+
+```javascript
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+
+// WAJIB: Atur CORS agar frontend kamu diizinkan mengambil data
+app.use(cors({
+    origin: '*', // Atau ganti dengan domain frontend kamu, misal 'https://sabr-app.vercel.app'
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+
+// Routes API kamu
+app.get('/api/pasien', async (req, res) => {
+    // ... logika ambil pasien
+    res.json([{ id_pasien: 1, nama: 'Budi' }]);
+});
+
+app.get('/api/sabr_report', async (req, res) => {
+    // ... logika ambil laporan
+    res.json([]);
+});
+
+// PENTING: Export instance Express, JANGAN panggil app.listen()
+module.exports = app;
+```
+
+#### 3. Konfigurasi `vercel.json` (di Root Folder Backend)
+
+File ini menginstruksikan Vercel bahwa semua *request* HTTP yang masuk harus diarahkan ke `api/index.js`.
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js"
+    }
+  ]
+}
+```
+
+#### 4. Setup Environment Variables di Vercel Dashboard
+
+Jika backend kamu terhubung ke Database (misal Supabase/PostgreSQL/MongoDB):
+1. Buka project backend kamu di Vercel Dashboard.
+2. Masuk ke **Settings** ➔ **Environment Variables**.
+3. Tambahkan variabel kamu, misalnya:
+   * `DATABASE_URL` = `postgresql://user:pass@ep-xyz.supabase.co/db`
+4. Di kode Node.js, kamu tinggal panggil pakai `process.env.DATABASE_URL`.
 
 ---
 
@@ -369,15 +450,13 @@ Gunakan class tersebut pada elemen HTML:
 <p class="font-content">Teks isi dengan Lexend Deca</p>
 ```
 
-Nama class di HTML harus sama persis dengan selector CSS (`font-title` dan `font-content`). Font Google dimuat dari internet, jadi pengunjung perlu koneksi internet; utility Tailwind seperti `text-3xl` tetap dapat dipakai bersamaan dengan class font ini.
-
 #### 8. Code Base: Menampilkan Struktur Folder sebagai Kode di HTML
-Kalau struktur folder ingin **ditampilkan sebagai teks di halaman web**, gunakan elemen `<pre>` dan `<code>`. Ini bukan menjalankan Bash dan bukan memasukkan file-file aplikasi ke dalam HTML; ini hanya menampilkan tulisan dengan spasi dan baris baru tetap terjaga.
+Kalau struktur folder ingin **ditampilkan sebagai teks di halaman web**, gunakan elemen `<pre>` dan `<code>`.
 
 ```html
 <section id="code">
   <h2>Code Base</h2>
-  <pre><code class="language-bash">project-root/
+  <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">project-root/
 │
 ├── index.html            # Core HTML Layout &amp; Modals Container
 ├── style.css             # Tailwind / Custom CSS
@@ -387,41 +466,13 @@ Kalau struktur folder ingin **ditampilkan sebagai teks di halaman web**, gunakan
 </section>
 ```
 
-`<pre>` mempertahankan spasi dan baris baru, sedangkan `<code>` menandai isinya sebagai kode. Tulis isi kode langsung setelah tag `<code>` dan tutup sebelum `</code>` agar indentasi dari markup HTML tidak ikut tampil sebagai spasi tambahan. Class `language-bash` hanya memberi informasi bahasa; pewarnaan sintaks memerlukan library *syntax highlighter* terpisah.
-
-Karena isi blok berada di dalam HTML, karakter khusus harus ditulis sebagai entitas HTML: gunakan `&amp;` untuk menampilkan karakter `&`, `&lt;` untuk `<`, dan `&gt;` untuk `>`. Browser akan menampilkan karakter aslinya, bukan teks entitas. Berbeda dengan isi `index.html`, kalau menampilkan teks yang dimasukkan melalui JavaScript, gunakan `element.textContent` agar teks diperlakukan sebagai teks biasa dan tidak ditafsirkan sebagai HTML.
-
-Supaya blok kode bisa dibaca di layar kecil, Tailwind dapat dipakai untuk memberi jarak, latar, warna, dan scroll horizontal:
-```html
-<pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">project-root/
-│
-├── index.html            # Core HTML Layout &amp; Modals Container
-├── style.css             # Tailwind / Custom CSS
-├── logo/                 # Asset Gambar &amp; Icon UI
-└── app/
-    └── main.js           # Core App Logic, State, Async API, &amp; DOM Manipulations</code></pre>
-```
-
-Navigasi ke bagian ini dapat menggunakan tautan `<a href="#code">Code Base</a>`, selama elemen pembungkusnya memiliki `id="code"`.
-
 #### 9. Jalankan projek
 ```bash
-# Menjalankan server development, biasanya di http://localhost:5173
+# Menjalankan server development
 npm run dev
 
-# Membuat hasil produksi di public/dist
+# Membuat hasil produksi
 npm run build
-```
-
-Untuk memakai struktur folder lain, sesuaikan nilai `root` di `vite.config.mjs` dan path CSS di HTML.
-
-#### Install React Manual (Tanpa Framework)
-```bash
-# Core React library
-npm install react react-dom
-
-# Tipe data jika menggunakan TypeScript
-npm install -D @types/react @types/react-dom
 ```
 
 ---
@@ -441,83 +492,53 @@ npm install
 # Step 3: Tambahkan Tailwind CSS v4 ke dalam projek Vite ini
 npm install -D tailwindcss @tailwindcss/vite
 ```
-*Tambahkan plugin Tailwind ke `vite.config.ts` yang sudah ada (pertahankan plugin React):*
-```javascript
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import tailwindcss from "@tailwindcss/vite";
-
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-});
-```
-*Tambahkan ke `src/index.css`:*
-```css
-@import "tailwindcss";
-```
 
 #### 2. Setup Fullstack React + TS + Tailwind Sekaligus (Menggunakan Next.js)
 Jika butuh pengerjaan cepat dengan sistem routing otomatis:
 ```bash
 npx create-next-app@latest nama-projek-kamu
-# Jawab 'Yes' untuk pilihan TypeScript, ESLint, Tailwind CSS, dan App Router.
 ```
 
 ---
 
 ### D. Pertolongan Pertama Error Dependensi (Troubleshooting Checklist)
 
-Ketika muncul error berwarna merah saat `npm install`, **jangan panik**. Ikuti urutan pertolongan pertama berikut:
+Ketika muncul error berwarna merah saat `npm install`, ikuti urutan pertolongan pertama berikut:
 
 #### 1. Error Bentrok Versi (*Peer Dependency Conflicts*)
-**Penyebab:** Modul A butuh React v17, tapi kamu pakai React v18.
 ```bash
-# Solusi 1: Abaikan konflik versi ringan (Paling sering berhasil)
+# Solusi 1: Abaikan konflik versi ringan
 npm install nama-package --legacy-peer-deps
 
-# Solusi 2: Paksa instalasi (Gunakan jika legacy-peer-deps masih gagal)
+# Solusi 2: Paksa instalasi
 npm install nama-package --force
 ```
 
 #### 2. Modul Korup atau Beliung (*node_modules Errors*)
-**Penyebab:** Proses instalasi terputus atau *cache* npm rusak.
 ```bash
 # Langkah "Sapu Bersih" (Nuklir node_modules):
 
-# 1. Hapus folder node_modules dan lockfile
-# Di Windows PowerShell:
+# Windows PowerShell:
 Remove-Item -Recurse -Force node_modules, package-lock.json
 
-# Di Mac/Linux/Bash:
+# Mac/Linux/Bash:
 rm -rf node_modules package-lock.json
 
-# 2. Bersihkan cache npm
+# Bersihkan cache npm & install ulang
 npm cache clean --force
-
-# 3. Install ulang dari awal
 npm install
 ```
 
 #### 3. Versi Node.js Tidak Sesuai (*Engine Mismatch*)
-**Penyebab:** Package butuh Node.js versi 18+, tapi laptopmu masih versi 14.
 ```bash
 # Cek versi Node.js saat ini
 node -v
 
-# Disarankan menggunakan NVM (Node Version Manager) untuk ganti versi:
+# Ganti versi via NVM:
 nvm install 18
 nvm use 18
 ```
 
-#### 4. Kamus Kode Perintah npm Umum
-
-| Perintah | Fungsi | Catatan |
-| :--- | :--- | :--- |
-| `npm install <pkg>` | Install modul untuk *Production* | Tersimpan di `dependencies` |
-| `npm install -D <pkg>` | Install modul untuk *Development* saja | Tersimpan di `devDependencies` (misal: Tailwind, TypeScript) |
-| `npm uninstall <pkg>` | Menghapus modul dari projek | Otomatis menghapus dari `package.json` |
-| `npm audit fix` | Memperbaiki celah keamanan modul | Jalankan jika npm menyarankan *security fixes* |
-
 ---
 
-*Dokumentasi ini diperbarui secara otomatis sesuai dengan arsitektur kode `main_5.js` & `index_3.html`.*
+*Dokumentasi ini diperbarui secara otomatis dengan panduan deploy Backend Serverless Express.js di Vercel.*
