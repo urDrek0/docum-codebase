@@ -14,11 +14,11 @@
         <a href="#documentation" class="text-white text-center p-4 text-md font-title">Dokumentasi</a>
         <a href="#installation" class="text-white text-center p-4 text-md font-title">Installation</a>
     </main>
-    <section id="documentation" class="p-12">
+    <section id="documentation" class="pt-12 pl-12 pr-12 pb-8">
         <h1 class="font-title pt-4 font-bold text-3xl text-center">Dokumentasi</h1>
         <h1 class="font-title pt-4 font-bold text-xl">Dokumentasi Arsitektur & Panduan Setup Projek SABR Report App</h1>
         <h2 class="font-content pt-2 text-sm">Aplikasi <b>SABR Report</b> App adalah aplikasi web manajemen laporan medis harian bertipe Single Page Application (SPA) sederhana yang dibuat menggunakan <b>Vanilla JavaScript, Tailwind CSS</b>, dan <b>FullCalendar JS</b>. Dokumen ini berfungsi sebagai referensi teknis lengkap untuk alur kerja data, integrasi API CRUD, dan panduan <i>deployment</i> ke Vercel.</h2><hr>
-        <h3 class="font-title pt-4 text-md">🛠️ 1. Tech Stack & Arsitektur Projek</h3>
+        <h3 id="dokum-1" class="font-title pt-4 text-md">🛠️ 1. Tech Stack & Arsitektur Projek</h3>
         <div class="grid grid-cols-2 gap-4">
             <ol class="pt-2 list-disc p-2">
                 <li class="font-content pt-2 text-sm"><b>Frontend: </b>JavaScript (ES6+ Native DOM API), Tailwind CSS (CDN/CSS Utility), FullCalendar v7.</li>
@@ -36,13 +36,13 @@
     └── main.js           # Core App Logic, State, Async API, &amp; DOM Manipulations</code></pre>
             </div>
         </div>
-        <h3 class="font-title pt-4 text-md">🌐 2. Konfigurasi API Base URL (Dev vs Production)</h3>
+        <h3 id="dokum-2" class="font-title pt-4 text-md">🌐 2. Konfigurasi API Base URL (Dev vs Production)</h3>
         <p class="font-content pt-2 text-sm">Untuk kebutuhan deployment ke Vercel atau pengujian di lokal, pastikan deklarasi API_URL mudah disesuaikan:</p>
         <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">// Atur URL sesuai environment
 const API_URL = window.location.hostname === 'localhost' 
 ? 'http://localhost:3000' 
 : 'https://sabr-backend.vercel.app';</code></pre>
-        <h3 class="font-title pt-4 text-md">🔄 3. Cheat Sheet Integration REST API (CRUD Pattern)</h3>
+        <h3 id="dokum-3" class="font-title pt-4 text-md">🔄 3. Cheat Sheet Integration REST API (CRUD Pattern)</h3>
         <p class="font-content pt-2 text-sm">Pola integrasi API menggunakan <code>async/await</code>, fetch, dan penanganan <code>error</code> terstandarisasi.</p>
         <div class="grid grid-cols-2 gap-4">
             <div class="">            
@@ -134,7 +134,7 @@ const API_URL = window.location.hostname === 'localhost'
 }</code></pre>
         </div>
         </div>
-        <h3 class="font-title pt-4 text-md">🧠 4. Global State & Lifecycle Synchronous Execution</h3>
+        <h3 id="dokum-4" class="font-title pt-4 text-md">🧠 4. Global State & Lifecycle Synchronous Execution</h3>
         <div class="grid grid-cols-2 gap-4">
             <h3 class="font-title pt-4 text-md">A. Centralized State Object</h3>
             <h3 class="font-title pt-4 text-md">B. Urutan Eksekusi DOMContentLoaded (CRITICAL)</h3>
@@ -167,7 +167,7 @@ const API_URL = window.location.hostname === 'localhost'
 });
 </code></pre>
     </div>
-        <h3 class="font-title pt-4 text-md">⚡ 5. Logika Kunci & Penanganan Bug Klasik</h3>
+        <h3 id="dokum-5" class="font-title pt-4 text-md">⚡ 5. Logika Kunci & Penanganan Bug Klasik</h3>
         <div class="grid grid-cols-2 gap-4">
             <div class="">
                 <h3 class="font-title pt-4 text-md">A. Format Index Bulan JavaScript (0-11)</h3>
@@ -287,7 +287,7 @@ module.exports = app;</code></pre>
         </div>
     </section>
 
-    <section id="installation" class="pl-12 pr-12 pt-4 pb-12 bg-slate-950 text-teal-100">
+    <section id="installation" class="pl-12 pr-12 pt-12 pb-12 bg-slate-950 text-teal-100">
         <h1 class="font-title p-4 font-bold text-3xl text-center">Installation</h1>
         <h1 class="font-title pt-4 font-bold text-md text-left">📦 Panduan Environment, Installation, Stack Setup & Troubleshooting</h1>
         <p class="font-content text-justify pt-2 text-sm">Bagian ini dibuat sebagai panduan teknis umum ketika kamu ingin membuat projek baru, menginstal modul Node.js, atau menyelesaikan masalah pertentangan dependensi (<i>dependency error</i>).</p>
@@ -397,13 +397,58 @@ npm run build</code></pre>
             </div>
             <div class="">
                 <h1 class="font-title pt-4 font-bold text-md text-left"><b>C. Panduan Instalasi Stack Sekaligus (Cara Modern & Direkomendasikan)</b></h1>
-            </div>
-            <div class="">
+                <ol class="list-decimal pt-2 pl-6">
+                    <li class="font-content pt-2 text-sm"><b>Setup React + TypeScript (Menggunakan Vite)</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Gunakan <b>Vite</b> untuk membuat projek SPA React modern yang super cepat.</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Step 1: Jalankan wizard instalasi Vite
+npm create vite@latest nama-projek-kamu -- --template react-ts
+
+# Step 2: Masuk ke folder & install seluruh dependensinya
+cd nama-projek-kamu
+npm install
+
+# Step 3: Tambahkan Tailwind CSS v4 ke dalam projek Vite ini
+npm install -D tailwindcss @tailwindcss/vite</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Setup Fullstack React + TS + Tailwind Sekaligus (Menggunakan Next.js)</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Jika butuh pengerjaan cepat dengan sistem routing otomatis:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx create-next-app@latest nama-projek-kamu</code></pre>
+                </ol>
                 <h1 class="font-title pt-4 font-bold text-md text-left"><b>D. Pertolongan Pertama Error Dependensi (Troubleshooting Checklist)</b></h1>
                 <p class="font-content text-sm text-justify pt-2">Ketika muncul error berwarna merah saat <code>npm install</code>, ikuti urutan pertolongan pertama berikut:</p>
+                <ol class="list-decimal pt-2 pl-6">
+                    <li class="font-content pt-2 text-sm"><b>Error Bentrok Versi (Peer Dependency Conflicts)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Solusi 1: Abaikan konflik versi ringan
+npm install nama-package --legacy-peer-deps
+
+# Solusi 2: Paksa instalasi
+npm install nama-package --force</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Modul Korup atau Beliung (node_modules Errors)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Langkah "Sapu Bersih" (Nuklir node_modules):
+
+# Windows PowerShell:
+Remove-Item -Recurse -Force node_modules, package-lock.json
+
+# Mac/Linux/Bash:
+rm -rf node_modules package-lock.json
+
+# Bersihkan cache npm & install ulang
+npm cache clean --force
+npm install</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Versi Node.js Tidak Sesuai (Engine Mismatch)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Cek versi Node.js saat ini
+node -v
+
+# Ganti versi via NVM:
+nvm install 18
+nvm use 18</code></pre>
+                </ol>
             </div>
         </div>
     </section>
+
+    <footer class="p-8">
+        <p class="text-center font-title text-sm"><i>Dokumentasi ini diperbarui secara otomatis dengan panduan deploy Backend Serverless Express.js di Vercel.</i></p>
+    </footer>
     <script type="module" src="/src/app/main.js"></script>
 </body>
 </html>
