@@ -194,11 +194,11 @@ targetMonth.innerHTML = defaultOption + uniqueMonth.map(m =>
                     </p>
                 <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">function safeHTMLConvert(str){
     if (typeof str !== 'string') return str;
-    return str.replace(/[$<>'"]/g, function(tag){
-        const charsToReplace = {
-            '&': '&amp;', '<': '&lt;', '>': '&gt;',
-            "'": '&#39;', '"': '&quot;'
-        };
+    return str.replace(/[$&lt;&gt;'"]/g, function(tag){
+    const charsToReplace = {
+        '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;',
+        "'": '&amp;#39;', '"': '&amp;quot;'
+    };
         return charsToReplace[tag];
     });
 }</code></pre>
@@ -234,9 +234,9 @@ targetMonth.innerHTML = defaultOption + uniqueMonth.map(m =>
                 <li class="font-content text-sm pt-2">Struktur Folder Backend yang Diharuskan Vercel</li>
                 <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">sabr-backend/
 ├── api/
-│   └── index.js      <-- Entry point serverless Vercel (KODE EXPRESS ADA DI SINI)
+│   └── index.js      &lt;-- Entry point serverless Vercel (KODE EXPRESS ADA DI SINI)
 ├── package.json
-└── vercel.json       <-- Konfigurasi route serverless</code></pre>
+└── vercel.json       &lt;-- Konfigurasi route serverless</code></pre>
                 <li class="font-content text-sm pt-2">Kode Express.js (<b><code>api/index.js</code></b>)</li>
                 <p class="font-content text-sm pt-2">Pastikan kamu meng-export <b>app</b> pakai <code>module.exports = app;</code>, bukan memanggil <code>app.listen()</code>.</p>
                 <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">const express = require('express');
@@ -376,7 +376,7 @@ export default defineConfig({
                     <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;h1 class="font-title"&gt;Judul dengan Gloock&lt;/h1&gt;
 &lt;p class="font-content"&gt;Teks isi dengan Lexend Deca&lt;/p&gt;</code></pre>
                     <li class="font-content pt-2 text-sm"><b>Code Base: Menampilkan Struktur Folder sebagai Kode di HTML</b></li>
-                    <p class="font-content text-sm text-justify pt-2">Kalau struktur folder ingin <b>ditampilkan sebagai teks di halaman web</b>, gunakan elemen <code>&lt;pre&gt</code>; dan <code>&lt;code&gt;</code>.</p>
+                    <p class="font-content text-sm text-justify pt-2">Kalau struktur folder ingin <b>ditampilkan sebagai teks di halaman web</b>, gunakan elemen <code>&lt;pre&gt;</code>; dan <code>&lt;code&gt;</code>.</p>
                     <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;section id="code"&gt;
   &lt;h2&gt;Code Base&lt;/h2&gt;
   &lt;pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"&gt;&lt;code class="language-bash"&gt;project-root/
