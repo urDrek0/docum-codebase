@@ -1,0 +1,454 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gloock&family=Lexend+Deca&display=swap" rel="stylesheet">
+    <title>Dokumentasi dan Panduan Installasi</title>
+  <script type="module" crossorigin src="/assets/index-DIpAYorE.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-digo_HW2.css">
+</head>
+<body class="">
+    <main id="" class="bg-black/75 backdrop-blur-md grid grid-cols-7 gap-4 top-0 fixed w-screen">
+        <h1 class="text-center text-white p-4 place-self-start text-md col-span-5 font-title">Dokumentasi dan Panduan Installasi</h1>
+        <a href="#documentation" class="text-white text-center p-4 text-md font-title">Dokumentasi</a>
+        <a href="#installation" class="text-white text-center p-4 text-md font-title">Installation</a>
+    </main>
+    <section id="documentation" class="pt-12 pl-12 pr-12 pb-8">
+        <h1 class="font-title pt-4 font-bold text-3xl text-center">Dokumentasi</h1>
+        <h1 class="font-title pt-4 font-bold text-xl">Dokumentasi Arsitektur & Panduan Setup Projek SABR Report App</h1>
+        <h2 class="font-content pt-2 text-sm">Aplikasi <b>SABR Report</b> App adalah aplikasi web manajemen laporan medis harian bertipe Single Page Application (SPA) sederhana yang dibuat menggunakan <b>Vanilla JavaScript, Tailwind CSS</b>, dan <b>FullCalendar JS</b>. Dokumen ini berfungsi sebagai referensi teknis lengkap untuk alur kerja data, integrasi API CRUD, dan panduan <i>deployment</i> ke Vercel.</h2><hr>
+        <h3 id="dokum-1" class="font-title pt-4 text-md">🛠️ 1. Tech Stack & Arsitektur Projek</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <ol class="pt-2 list-disc p-2">
+                <li class="font-content pt-2 text-sm"><b>Frontend: </b>JavaScript (ES6+ Native DOM API), Tailwind CSS (CDN/CSS Utility), FullCalendar v7.</li>
+                <li class="font-content pt-2 text-sm"><b>Backend Endpoint: </b>RESTful API (Express.js / Node.js / Serverless Backend).</li>
+                <li class="font-content pt-2 text-sm"><b>Database Target: </b>PostgreSQL / Supabase / MongoDB (via REST backend).</li>
+                <li class="font-content pt-2 text-sm"><b>Hosting Frontend: </b>Vercel Static Web Hosting / GitHub Pages.</li>
+            </ol>
+            <div class="">
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">project-root/
+│
+├── index.html            # Core HTML Layout &amp; Modals Container
+|── style.css             # Tailwind / Custom CSS
+├── logo/                 # Asset Gambar &amp; Icon UI
+└── app/
+    └── main.js           # Core App Logic, State, Async API, &amp; DOM Manipulations</code></pre>
+            </div>
+        </div>
+        <h3 id="dokum-2" class="font-title pt-4 text-md">🌐 2. Konfigurasi API Base URL (Dev vs Production)</h3>
+        <p class="font-content pt-2 text-sm">Untuk kebutuhan deployment ke Vercel atau pengujian di lokal, pastikan deklarasi API_URL mudah disesuaikan:</p>
+        <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">// Atur URL sesuai environment
+const API_URL = window.location.hostname === 'localhost' 
+? 'http://localhost:3000' 
+: 'https://sabr-backend.vercel.app';</code></pre>
+        <h3 id="dokum-3" class="font-title pt-4 text-md">🔄 3. Cheat Sheet Integration REST API (CRUD Pattern)</h3>
+        <p class="font-content pt-2 text-sm">Pola integrasi API menggunakan <code>async/await</code>, fetch, dan penanganan <code>error</code> terstandarisasi.</p>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="">            
+                <h4 class="font-title pt-2 text-md">A. GET Data (Read)</h4>
+                <p class="font-content pt-2 text-sm">Mengambil data dari backend untuk kemudian disimpan ke dalam global state.</p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">async function fetchDataSabr() {
+    try {
+        const response = await fetch(`${API_URL}/api/sabr_report`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Gagal mengambil data SABR:", error);
+        return [];
+    }
+}</code></pre>
+<div class="">
+            <h4 class="font-title pt-2 text-md">C. DELETE Data (Delete)</h4>
+            <p class="font-content pt-2 text-sm">Menghapus data spesifik berdasarkan ID melalui modal konfirmasi global.</p>
+            <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">async function executeDelete() {
+    if (!state.idToDelete) return;
+
+    try {
+        const response = await fetch(`${API_URL}/api/sabr_report/${state.idToDelete}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            alert('Laporan Berhasil Dihapus');
+            document.getElementById('modal-delete').classList.add('hidden');
+            
+            // Re-fetch data terbaru
+            state.dataReport = await fetchDataSabr();
+            renderCurrentPage();
+        }
+    } catch (error) {
+        console.error("Error during deletion:", error);
+        alert("Terjadi Kesalahan Jaringan.");
+    }
+}</code></pre>
+        </div>
+        </div>
+        <div class="">
+            <h4 class="font-title pt-2 text-md">B. POST & PUT Data (Create & Update)</h4>
+            <p class="font-content pt-2 text-sm">Pola ini menggunakan pendekatan <b>Single Form Modal</b> di mana status pembuatan (Create) atau pengeditan (Update) ditentukan berdasarkan variabel <code>state.editId</code>.</p>
+            <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">async function submitNewReport() {
+    const payload = {
+        tanggal_shift: document.getElementById('date-input').value,
+        shift: document.getElementById('modal-shift-selector').value,
+        pasien_id: selectedPasienId,
+        situation: document.getElementById('situation-input').value,
+        background: document.getElementById('background-input').value,
+        assessment: document.getElementById('assessment-input').value,
+        recommendation: document.getElementById('recommendation-input').value
+    };
+
+    // Tentukan Endpoint & HTTP Method berdasarkan keberadaan editId
+    let endpoint = `${API_URL}/api/sabr_report`;
+    let method = 'POST';
+
+    if (state.editId) {
+        endpoint = `${API_URL}/api/sabr_report/${state.editId}`;
+        method = 'PUT';
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            alert(`Gagal: ${errorData.error || 'Terjadi kesalahan saat menyimpan.'}`);
+            return;
+        }
+
+        alert(method === 'POST' ? "Data Berhasil Ditambahkan" : "Data Berhasil Diperbaharui");
+        
+        // Refresh local state & UI
+        state.dataReport = await fetchDataSabr();
+        renderCurrentPage();
+        state.editId = null; // Reset state edit
+    } catch (error) {
+        console.error("Error submitting report:", error);
+        alert("Terjadi Kesalahan Jaringan.");
+    }
+}</code></pre>
+        </div>
+        </div>
+        <h3 id="dokum-4" class="font-title pt-4 text-md">🧠 4. Global State & Lifecycle Synchronous Execution</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <h3 class="font-title pt-4 text-md">A. Centralized State Object</h3>
+            <h3 class="font-title pt-4 text-md">B. Urutan Eksekusi DOMContentLoaded (CRITICAL)</h3>
+            <p class="font-content pt-2 text-sm">Seluruh variabel pendukung antarmuka disimpan dalam satu objek <code>state</code> terpusat:</p>
+            <p class="font-content pt-2 text-sm">Aplikasi harus menyelesaikan <code>initData()</code> <b>sebelum</b> mengeksekusi manipulasi DOM atau kalkulasi statistik:</p>
+            <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">let state = {
+    currentPage: 'dashboard',
+    selectedDate: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
+    selectedShift: 'pagi',
+    dataReport: [],
+    dataShift: [],
+    dataPegawai: [],
+    dataPasien: [],
+    dataShiftCounter: [],
+    idToDelete: null,
+    deleteType: null,
+    editId: null
+};
+</code></pre>
+            <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">document.addEventListener('DOMContentLoaded', async function () {
+    // 1. Inisialisasi Kalender & Event Listener UI awal
+    setupCalendar();
+    
+    // 2. Fetch data dari backend hingga selesai (AWAIT)
+    await initData();
+    
+    // 3. Render halaman utama & dropdown berbasis data async
+    renderCurrentPage();
+    statisticOptionDropdown(); 
+});
+</code></pre>
+    </div>
+        <h3 id="dokum-5" class="font-title pt-4 text-md">⚡ 5. Logika Kunci & Penanganan Bug Klasik</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="">
+                <h3 class="font-title pt-4 text-md">A. Format Index Bulan JavaScript (0-11)</h3>
+                <p class="font-content pt-2 text-sm">Di JavaScript, <code>Date.getMonth()</code> mengembalikan angka dari 0 (Januari) hingga 11 (Desember). Gunakan <i>Objek Dictionary</i> untuk <i>mapping</i> angka ke teks UI manusiawi:</p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">const bulanDictionary = {
+    0: 'Januari', 1: 'Februari', 2: 'Maret', 3: 'April',
+    4: 'Mei', 5: 'Juni', 6: 'Juli', 7: 'Agustus',
+    8: 'September', 9: 'Oktober', 10: 'November', 11: 'Desember'
+};</code></pre>
+            <div class="">
+                <h3 class="font-title pt-4 text-md">C. Keamanan Pengisian Teks (Anti-XSS / Safe HTML Convert)</h3>
+                <p class="font-content pt-2 text-sm">Fungsi sanitasi untuk mencegah injeksi script jahat pada input user:</p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">const defaultOption = `<option value="" selected disabled hidden>Pilih Bulan</option>`;
+targetMonth.innerHTML = defaultOption + uniqueMonth.map(m => 
+    `<option value="${m}">${bulanDictionary[m]}</option>`
+).join('');</code></pre>
+            </div>
+            </div>
+            <div class="">
+                <h3 class="font-title pt-4 text-md">B. Perbandingan Tipe Data (String vs Number)</h3>
+                <p class="font-content pt-2 text-sm">Nilai <code>.value </code>dari elemen <code>&#60;select&#x3E;</code> HTML selalu bertipe <b>String</b>, sedangkan <code>date.getMonth()</code> bertipe <b>Number</b>.
+    <br>❌ <code>"8" === 8</code> ➔ <code>false</code> (Bisa menyebabkan data dianggap kosong/0)
+    <br>✅ <code>date.getMonth() === parseInt(monthStats)</code> ➔ <code>true</code>
+                    </p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">function safeHTMLConvert(str){
+    if (typeof str !== 'string') return str;
+    return str.replace(/[$&lt;&gt;'"]/g, function(tag){
+    const charsToReplace = {
+        '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;',
+        "'": '&amp;#39;', '"': '&amp;quot;'
+    };
+        return charsToReplace[tag];
+    });
+}</code></pre>
+            </div>
+        </div>
+        </div>
+        <h3 class="font-title pt-4 text-md">🚀 6. Panduan Deploy ke Vercel (Frontend & Backend Express.js)</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <ol class="list-decimal p-4">
+                <h2 class="font-title text-md">A. Deploy Frontend (Static Web)</h2>
+                <li class="font-content text-sm pt-2"><b>Persiapan Repositori GitHub:</b></li>
+                <ol class="list-disc p-2">
+                <li class="font-content text-sm pt-2">Pastikan struktur folder rapi (<code>index.html</code> ada di root atau folder terkonfigurasi).</li> 
+                <li class="font-content text-sm pt-2">Pastikan <code>API_URL</code> menunjuk ke server backend produksi Vercel kamu.</li> 
+                </ol>
+                <li class="font-content text-sm pt-2"><b>Deploy via Vercel Dashboard:</b></li>
+                <ol class="list-disc p-2">
+                <li class="font-content text-sm pt-2">Login ke <a href="https://vercel.com/" class="text-red-500" target="_blank">Vercel Dashboard.</a></li> 
+                <li class="font-content text-sm pt-2">Klik <b>"Add New" ➔ "Project" ➔</b> Import repositori frontend.</li> 
+                <li class="font-content text-sm pt-2">Framework Preset: Pilih <code>Other</code> / <code>Static HTML</code>.</li> 
+                <li class="font-content text-sm pt-2">Klik <b>Deploy</b>.</li> 
+                </ol>
+                <li class="font-content text-sm pt-2"><b>Routing Configuration</b> (<code>vercel.json</code> <b>Frontend</b>): Jika memerlukan penanganan routing SPA agar halaman tidak 404 saat di-refresh:</li>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}</code></pre>
+            </ol>
+            <ol class="list-decimal p-4">
+                <h2 class="font-title text-md">B. Deploy Backend Express.js (Serverless Function)</h2>
+                <p class="font-content text-sm pt-2">Di Vercel, backend Express.js tidak dijalankan memakai <code>app.listen(3000)</code> terus-menerus, melainkan di-wrap sebagai <b>Serverless Function</b>.</p>
+                <li class="font-content text-sm pt-2">Struktur Folder Backend yang Diharuskan Vercel</li>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">sabr-backend/
+├── api/
+│   └── index.js      &lt;-- Entry point serverless Vercel (KODE EXPRESS ADA DI SINI)
+├── package.json
+└── vercel.json       &lt;-- Konfigurasi route serverless</code></pre>
+                <li class="font-content text-sm pt-2">Kode Express.js (<b><code>api/index.js</code></b>)</li>
+                <p class="font-content text-sm pt-2">Pastikan kamu meng-export <b>app</b> pakai <code>module.exports = app;</code>, bukan memanggil <code>app.listen()</code>.</p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">const express = require('express');
+const cors = require('cors');
+
+const app = express();
+
+// WAJIB: Atur CORS agar frontend kamu diizinkan mengambil data
+app.use(cors({
+    origin: '*', // Atau ganti dengan domain frontend kamu, misal 'https://sabr-app.vercel.app'
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.use(express.json());
+
+// Routes API kamu
+app.get('/api/pasien', async (req, res) => {
+    // ... logika ambil pasien
+    res.json([{ id_pasien: 1, nama: 'Budi' }]);
+});
+
+app.get('/api/sabr_report', async (req, res) => {
+    // ... logika ambil laporan
+    res.json([]);
+});
+
+// PENTING: Export instance Express, JANGAN panggil app.listen()
+module.exports = app;</code></pre>
+                <li class="font-content text-sm pt-2">Konfigurasi <b><code>vercel.json</code></b> (di Root Folder Backend)</li>
+                <p class="font-content text-sm pt-2">File ini menginstruksikan Vercel bahwa semua <i>request</i> HTTP yang masuk harus diarahkan ke <b><code>api/index.js</code></b>.</p>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.js"
+    }
+  ]
+}</code></pre>
+            </ol>
+        </div>
+    </section>
+
+    <section id="installation" class="pl-12 pr-12 pt-12 pb-12 bg-slate-950 text-teal-100">
+        <h1 class="font-title p-4 font-bold text-3xl text-center">Installation</h1>
+        <h1 class="font-title pt-4 font-bold text-md text-left">📦 Panduan Environment, Installation, Stack Setup & Troubleshooting</h1>
+        <p class="font-content text-justify pt-2 text-sm">Bagian ini dibuat sebagai panduan teknis umum ketika kamu ingin membuat projek baru, menginstal modul Node.js, atau menyelesaikan masalah pertentangan dependensi (<i>dependency error</i>).</p>
+        <h1 class="font-title pt-4 font-bold text-md text-left"><b>A. Memahami Beda Install "Satuan" vs "Sekaligus (Bundled Stack)"</b></h1>
+        <div class="grid grid-cols-4 gap-5">
+            <h1 class="font-title pt-4 font-bold text-md text-left"><b>Metode</b></h1>
+            <h1 class="font-title pt-4 font-bold text-md text-left"><b>Kapan Digunakan?</b></h1>
+            <h1 class="font-title pt-4 font-bold text-md text-left"><b>Kelebihan</b></h1>
+            <h1 class="font-title pt-4 font-bold text-md text-left"><b>Kekurangan</b></h1>
+        </div>
+        <hr>
+        <div class="grid grid-cols-4 gap-5 pb-4">
+            <h1 class="font-content pt-4 text-sm text-left"><b>Satuan (Manual)</b></h1>
+            <h1 class="font-content pt-4 text-sm text-left">Menambahkan modul ke projek Vanilla JS/Node yang sudah ada</h1>
+            <h1 class="font-content pt-4 text-sm text-left">Lebih ringan, kontrol penuh atas modul yang masuk</h1>
+            <h1 class="font-content pt-4 text-md text-left">Rawan peer dependency error jika versi tidak cocok</h1>
+        </div>
+        <hr>
+        <div class="grid grid-cols-4 gap-5 pb-4">
+            <h1 class="font-content pt-4 text-sm text-left"><b>Sekaligus (Bundler/Starter)</b></h1>
+            <h1 class="font-content pt-4 text-sm text-left">Membuat projek baru dengan stack modern (React, TS, Tailwind)</h1>
+            <h1 class="font-content pt-4 text-sm text-left">Otomatis terkonfigurasi, pasti kompatibel</h1>
+            <h1 class="font-content pt-4 text-md text-left">Menghasilkan struktur folder awal yang ramai</h1>
+        </div>
+        <hr>
+        <div class="grid grid-cols-2 gap-5">
+            <div class="">
+                <h1 class="font-title pt-4 font-bold text-md text-left"><b>B. Panduan Instalasi Satuan (Manual / Standalone)</b></h1>
+                <p class="font-content text-sm text-justify pt-2">Panduan ini untuk halaman HTML biasa tanpa React atau framework UI. Tailwind CSS v4 tetap memerlukan alat build; pada setup ini Vite menyajikan halaman saat development dan plugin Tailwind menghasilkan CSS dari utility class yang digunakan.</p>
+                <ol class="list-decimal pt-2 pl-6">
+                    <li class="font-content pt-2 text-sm"><b>Inisialisasi Projek Node.js</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Untuk projek baru:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm init -y</code></pre>
+                    <p class="font-content text-sm text-justify pt-2">Jika projek sudah memiliki <b><code>package.json</code></b>, lewati langkah ini.</p>
+                    <li class="font-content pt-2 text-sm"><b>Install Vite dan Tailwind CSS v4</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install -D vite tailwindcss @tailwindcss/vite</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Tambahkan perintah development dan build</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Tambahkan scripts berikut ke bagian <code>"scripts</code>" di <code>package.json:</code></p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">{
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  }</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Konfigurasikan Vite dengan plugin Tailwind</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Buat <code>vite.config.mjs</code>. Contoh ini memakai folder <code>public</code> sebagai root halaman:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">import { defineConfig } from "vite";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  root: "public",
+  plugins: [tailwindcss()],
+  publicDir: false,
+});</code></pre>                    
+                    <li class="font-content pt-2 text-sm"><b>Import Tailwind ke CSS</b></li>                    
+                    <p class="font-content text-sm text-justify pt-2">Buat <code>public/src/app/style.css</code>:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">@import "tailwindcss";</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Hubungkan CSS dan JavaScript ke HTML</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Di dalam elemen <code>&lt;head&gt;</code> pada <code>public/index.html</code>, tambahkan:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;link rel="stylesheet" href="/src/app/style.css"&gt;</code></pre>
+                    <p class="font-content text-sm text-justify pt-2">Jika halaman menggunakan JavaScript, muat sebagai modul sebelum <code>&lt;/body&gt;</code>:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;script type="module" src="/src/app/main.js"&gt;</script></code></pre>
+                    <p class="font-content text-sm text-justify pt-2">Contoh penggunaan utility class:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;div class="bg-blue-500 p-4 text-white"&gt;
+  &lt;h1 class="text-3xl font-bold"&gt;Tailwind aktif&lt;/h1&gt;
+&lt;/div&gt;</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Menambahkan Google Fonts (Gloock dan Lexend Deca)</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Google Fonts dapat dipakai langsung tanpa menginstal paket npm. Tambahkan koneksi font ke dalam <code>&lt;head&gt;</code> pada <code>public/index.html</code>, sebelum stylesheet:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;
+&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link href="https://fonts.googleapis.com/css2?family=Gloock&family=Lexend+Deca&display=swap" rel="stylesheet"&gt;</code></pre>
+                    <p class="font-content text-sm text-justify pt-2">Tambahkan class font ke <code>public/src/app/style.css</code>, setelah <code>@import</code> Tailwind. Pastikan setiap statement CSS diakhiri titik koma:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">@import "tailwindcss";
+
+.font-title {
+  font-family: "Gloock", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.font-content {
+  font-family: "Lexend Deca", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}</code></pre>
+                    <p class="font-content text-sm text-justify pt-2">Gunakan class tersebut pada elemen HTML:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;h1 class="font-title"&gt;Judul dengan Gloock&lt;/h1&gt;
+&lt;p class="font-content"&gt;Teks isi dengan Lexend Deca&lt;/p&gt;</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Code Base: Menampilkan Struktur Folder sebagai Kode di HTML</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Kalau struktur folder ingin <b>ditampilkan sebagai teks di halaman web</b>, gunakan elemen <code>&lt;pre&gt;</code>; dan <code>&lt;code&gt;</code>.</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">&lt;section id="code"&gt;
+  &lt;h2&gt;Code Base&lt;/h2&gt;
+  &lt;pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"&gt;&lt;code class="language-bash"&gt;project-root/
+│
+├── index.html            # Core HTML Layout &amp; Modals Container
+├── style.css             # Tailwind / Custom CSS
+├── logo/                 # Asset Gambar &amp; Icon UI
+└── app/
+    └── main.js           # Core App Logic, State, Async API, &amp; DOM Manipulations&lt;/code&gt;&lt;/pre&gt;
+&lt;/section&gt;</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Jalankan projek</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Menjalankan server development
+npm run dev
+
+# Membuat hasil produksi
+npm run build</code></pre>
+                </ol>
+            </div>
+            <div class="">
+                <h1 class="font-title pt-4 font-bold text-md text-left"><b>C. Panduan Instalasi Stack Sekaligus (Cara Modern & Direkomendasikan)</b></h1>
+                <ol class="list-decimal pt-2 pl-6">
+                    <li class="font-content pt-2 text-sm"><b>Setup React + TypeScript (Menggunakan Vite)</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Gunakan <b>Vite</b> untuk membuat projek SPA React modern yang super cepat.</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Step 1: Jalankan wizard instalasi Vite
+npm create vite@latest nama-projek-kamu -- --template react-ts
+
+# Step 2: Masuk ke folder & install seluruh dependensinya
+cd nama-projek-kamu
+npm install
+
+# Step 3: Tambahkan Tailwind CSS v4 ke dalam projek Vite ini
+npm install -D tailwindcss @tailwindcss/vite</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Setup Fullstack React + TS + Tailwind Sekaligus (Menggunakan Next.js)</b></li>
+                    <p class="font-content text-sm text-justify pt-2">Jika butuh pengerjaan cepat dengan sistem routing otomatis:</p>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx create-next-app@latest nama-projek-kamu</code></pre>
+                </ol>
+                <h1 class="font-title pt-4 font-bold text-md text-left"><b>D. Pertolongan Pertama Error Dependensi (Troubleshooting Checklist)</b></h1>
+                <p class="font-content text-sm text-justify pt-2">Ketika muncul error berwarna merah saat <code>npm install</code>, ikuti urutan pertolongan pertama berikut:</p>
+                <ol class="list-decimal pt-2 pl-6">
+                    <li class="font-content pt-2 text-sm"><b>Error Bentrok Versi (Peer Dependency Conflicts)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Solusi 1: Abaikan konflik versi ringan
+npm install nama-package --legacy-peer-deps
+
+# Solusi 2: Paksa instalasi
+npm install nama-package --force</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Modul Korup atau Beliung (node_modules Errors)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Langkah "Sapu Bersih" (Nuklir node_modules):
+
+# Windows PowerShell:
+Remove-Item -Recurse -Force node_modules, package-lock.json
+
+# Mac/Linux/Bash:
+rm -rf node_modules package-lock.json
+
+# Bersihkan cache npm & install ulang
+npm cache clean --force
+npm install</code></pre>
+                    <li class="font-content pt-2 text-sm"><b>Versi Node.js Tidak Sesuai (Engine Mismatch)</b></li>
+                    <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash"># Cek versi Node.js saat ini
+node -v
+
+# Ganti versi via NVM:
+nvm install 18
+nvm use 18</code></pre>
+                </ol>
+            </div>
+        </div>
+    </section>
+
+    <footer class="p-8">
+        <p class="text-center font-title text-sm"><i>Dokumentasi ini diperbarui secara otomatis dengan panduan deploy Backend Serverless Express.js di Vercel.</i></p>
+    </footer>
+</body>
+</html>
