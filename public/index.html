@@ -444,6 +444,56 @@ nvm use 18</code></pre>
                 </ol>
             </div>
         </div>
+        <hr>
+        <h1 class="font-title text-2xl pt-12 pb-8 pl-12 pr-12 text-center">Typescript Standalone</h1>
+        <div class="grid grid-cols-2 gap-5">
+            <div class="pl-12 pr-12">
+                <h1 class="font-title text-xl pt-2">Node Js Setup</h1>
+                <h1 class="font-content text-md pt-4">Ikutin berurutan</h1>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm init -y</code></pre>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install --save-dev jest @types/jest</code></pre>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install @babel/preset-env @babel/core --save-dev</code></pre>
+                <h1 class="font-title text-xl pt-8">Typescript Setup</h1>
+                <h1 class="font-content text-md pt-4">Ikutin berurutan</h1>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install --save-dev typescript</code></pre>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx tsc --init</code></pre>
+                <h1 class="font-content text-md pt-4">Di file <code><b>tsconfig.json</b></code></h1>
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">"module" : "es6"</code></pre>
+                <h1 class="font-content text-md pt-4">Install <code><b>Babel Js</b></code></h1>                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install --save-dev @babel/preset-typescript</code></pre>
+                <h1 class="font-content text-md pt-4">Di file <code><b>babel.config.json</b></code></h1>                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">@babel/preset-typescript</code></pre>
+                <h1 class="font-content text-md pt-4">Inisiasi config ts-jest</h1>                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx ts-jest config:init</code></pre>
+                <h1 class="font-content text-md pt-4">Install TS Jest Global</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm install --save-dev @jest/globals</code></pre>                
+            </div>
+            <div class="pl-12 pr-12">
+                <h1 class="font-title text-xl pt-8">Typescript Fix</h1>
+                <h1 class="font-content text-md pt-4">Testing Unit</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npm test</code></pre>
+                <h1 class="font-content text-md pt-4">Compile Unit Singular</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx tsc</code></pre>
+                <h1 class="font-content text-md pt-4">Compile Unit Auro</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">npx tsc --watch</code></pre>
+                <h1 class="font-content text-md pt-4">Output Control, atur di file <code>tsconfig.json</code></h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">// Other Outputs
+    "sourceMap": true, ----------------&lt; "sourceMap": false,
+    "declaration": true, ----------------&lt; "declaration": false
+    "declarationMap": true, -----------&lt;  "declarationMap": false,</code></pre>
+                <h1 class="font-content text-md pt-4">Compile Setting unit test dan ts</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./dist"
+    "types": ["jest"],
+  },
+  "include": ["src/**/*.ts", "tests/**/*.test.ts"]
+}</code></pre>
+                <h1 class="font-content text-md pt-4">Gunakan untuk menghindari module conflict, atau yang yang dibutuhkan dari jest/globals</h1>                                                
+                <pre class="mt-4 overflow-x-auto rounded-lg bg-gray-900 p-6 text-sm text-green-300"><code class="language-bash">import { describe, expect, it } from "@jest/globals"</code></pre>
+            </div>
+        </div>
     </section>
 
     <footer class="p-8">
